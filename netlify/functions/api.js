@@ -16,7 +16,6 @@ const escapeHtml = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// ---------- RETO 1: middleware de API Key ----------
 function requireApiKey(req, res, next) {
   const key = req.header('x-api-key');
   if (!key || key !== process.env.API_SECRET_KEY) {
@@ -25,7 +24,6 @@ function requireApiKey(req, res, next) {
   next();
 }
 
-// ---------- Endpoint 1 ----------
 router.get('/time', (req, res) => {
   const now = new Date();
   res.status(200).json({
@@ -40,7 +38,6 @@ router.get('/time', (req, res) => {
   });
 });
 
-// ---------- Endpoint 2 ----------
 router.post('/send-email', requireApiKey, async (req, res) => {
   try {
     const { to, subject, message, senderName } = req.body || {};
@@ -51,7 +48,7 @@ router.post('/send-email', requireApiKey, async (req, res) => {
     if (!esCorreoValido(to)) {
       return res.status(400).json({ status: 'error', message: 'El formato del campo "to" no es válido.' });
     }
-    // ---------- RETO 2: CRLF injection ----------
+
     if (/[\r\n]/.test(subject) || /[\r\n]/.test(to)) {
       return res.status(400).json({ status: 'error', message: 'Los campos no pueden contener saltos de línea.' });
     }
@@ -68,7 +65,7 @@ router.post('/send-email', requireApiKey, async (req, res) => {
       auth: { user: SMTP_USER, pass: SMTP_PASS }
     });
 
-    // ---------- RETO 3: plantilla HTML ----------
+
     const nombre = escapeHtml(senderName || 'Sistema');
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;">
